@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  myapp:
+    image: mycompany/myapp:1.0.0
+    container_name: myapp
+    depends_on:
+      - mysql
+    environment:
+      - sentron.IP=192.168.90.145
+    ports:
+      - 8080:8080
