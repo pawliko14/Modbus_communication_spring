@@ -9,6 +9,7 @@ import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.query.FluxTable;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -31,7 +32,6 @@ public class InfluxInitalizer {
         this.connection = connection;
         this.measurmentName = measurmentName;
         this.measurmentTag = measurmentTag;
-
 
         this.client = InfluxDBClientFactory.create(this.connection, this.token.toCharArray());
     }

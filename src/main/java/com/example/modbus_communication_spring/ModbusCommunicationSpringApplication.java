@@ -9,9 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
-import java.util.List;
 
-//@SpringBootApplication(scanBasePackages={"com.example.modbus_communication_spring"})
 @SpringBootApplication
 public class ModbusCommunicationSpringApplication implements CommandLineRunner {
 
@@ -23,16 +21,16 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
     private static Licznik l1;
 
     @Value("${influx.token}")
-    private  String token;
+    private String token;
     @Value("${influx.bucket}")
-    private  String bucket;
+    private String bucket;
     @Value("${influx.orgName}")
-    private  String org;
+    private String org;
     @Value("${influx.connection}")
-    private  String connection;
+    private String connection;
 
     @Value("${influx.measurmentName}")
-    private  String measurmentName;
+    private String measurmentName;
     @Value("${influx.measurmentTag}")
     private String measurmentTag;
 
@@ -46,11 +44,9 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
     public void run(String... args) {
         influxInitalizer = new InfluxInitalizer(token, bucket, org, connection, measurmentName, measurmentTag);
 
-        List<Register> registers = Arrays.asList(Register.values());
-
         l1 = new Licznik(IPADDRESS,
                 FREQUENCY,
-                registers,
+                Arrays.asList(Register.values()),
                 influxInitalizer
         );
         l1.start();

@@ -46,8 +46,6 @@ public class Licznik extends Thread {
             System.out.println("timeout: " + modbusClient.getConnectionTimeout());
             if (modbusClient.isConnected()) {
                 System.out.println("Connection is set as: " + GetIP());
-            } else {
-                //  modbusClient.Disconnect();
             }
         } catch (Exception e) {
             System.out.println("Connection lost, trying to connect:");
@@ -63,8 +61,8 @@ public class Licznik extends Thread {
 
             while (true) {
                 for (Register register : registers) {
-                    float v = ModbusClient.ConvertRegistersToFloat(modbusClient.ReadHoldingRegisters(register.getValue(), 2), ModbusClient.RegisterOrder.HighLow);
-                    this.InsertIntoDatabase6Param(v, register.name());
+                    this.insertIntoInflux(ModbusClient.ConvertRegistersToFloat(modbusClient.ReadHoldingRegisters(register.getValue(), 2), ModbusClient.RegisterOrder.HighLow)
+                            , register.name());
                 }
                 CheckMemoryUsage();
                 Thread.sleep(this.GetCzestotliwosc());
@@ -75,21 +73,18 @@ public class Licznik extends Thread {
         }
     }
 
-
     private void CheckMemoryUsage() {
-        // TODO Auto-generated method stub
         MemoryUsage heapMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         heapMemoryUsage.getUsed();
         System.out.println("HeapMemoryUsage: " + heapMemoryUsage.getUsed());
     }
-
 
     public void run() {
         try {
             this.ConnectToLicznik();
             this.StartGenerateDataSet();
         } catch (SQLException | IOException | InterruptedException e) {
-            System.out.println("no connection here - odpalanie rekursywnie run(): ");
+            System.out.println("no connection here - trying to reconnect: ");
             System.out.println("problem :" + e);
             try {
                 Thread.sleep(2000);
@@ -103,7 +98,7 @@ public class Licznik extends Thread {
 
     }
 
-    public void InsertIntoDatabase6Param(double value, String fieldName) {
+    public void insertIntoInflux(double value, String fieldName) {
         insertToInflux(value, influxInitalizer, "host1", fieldName);
         System.out.println("Added : " + value);
     }

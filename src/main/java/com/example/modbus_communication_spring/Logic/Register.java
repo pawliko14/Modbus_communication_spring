@@ -1,7 +1,5 @@
 package com.example.modbus_communication_spring.Logic;
 
-import org.springframework.stereotype.Component;
-
 public enum Register {
     FREQUENCY(55),
     TOTAL_APPARENT_POWER(63),
