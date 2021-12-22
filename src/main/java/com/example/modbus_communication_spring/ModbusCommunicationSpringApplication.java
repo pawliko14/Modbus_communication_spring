@@ -2,13 +2,11 @@ package com.example.modbus_communication_spring;
 
 import com.example.modbus_communication_spring.InfluxDBConnector.InfluxInitalizer;
 import com.example.modbus_communication_spring.Logic.Licznik;
-import com.example.modbus_communication_spring.Logic.Register;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.Arrays;
 
 @SpringBootApplication
 public class ModbusCommunicationSpringApplication implements CommandLineRunner {
@@ -34,6 +32,9 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
     @Value("${influx.measurmentTag}")
     private String measurmentTag;
 
+    @Value("${sentron.decimalFormat}")
+    private String decimalFormat;
+
     private static InfluxInitalizer influxInitalizer;
 
     public static void main(String[] args) {
@@ -42,11 +43,10 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        influxInitalizer = new InfluxInitalizer(token, bucket, org, connection, measurmentName, measurmentTag);
+        influxInitalizer = new InfluxInitalizer(token, bucket, org, connection, measurmentName,measurmentTag,decimalFormat);
 
         l1 = new Licznik(IPADDRESS,
                 FREQUENCY,
-                Arrays.asList(Register.values()),
                 influxInitalizer
         );
         l1.start();

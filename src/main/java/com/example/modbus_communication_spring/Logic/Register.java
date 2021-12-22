@@ -12,7 +12,13 @@ public enum Register {
     CURRENT_A(13),
     CURRENT_B(15),
     CURRENT_C(17),
-    AVERAGE_CURRENT(61);
+    AVERAGE_CURRENT(61),
+    DEMAND_ACTIVE_POWER_IMPORT(501),
+    DEMAND_ACTIVE_POWER_EXPORT(505),
+    ACTIVE_ENERGY_IMPORT_TARIFF_1(801),  // need 4 registers
+    ACTIVE_ENERGY_IMPORT_TARIFF_2(805),// need 4 registers
+    ACTIVE_ENERGY_EXPORT_TARIFF_1(809),// need 4 registers
+    ACTIVE_ENERGY_EXPORT_TARIFF_2(813);// need 4 registers
 
     private final int value;
 
