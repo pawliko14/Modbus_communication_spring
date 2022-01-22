@@ -1,7 +1,5 @@
 package com.example.modbus_communication_spring.InfluxDBConnector;
 
-import com.influxdb.annotations.Column;
-import com.influxdb.annotations.Measurement;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
@@ -24,7 +22,7 @@ public class InfluxInitalizer {
     private String measurmentTag;
 
 
-    public InfluxInitalizer(String token, String bucket, String org, String connection, String measurmentName, String measurmentTag,String decimalFormat) {
+    public InfluxInitalizer(String token, String bucket, String org, String connection, String measurmentName, String measurmentTag, String decimalFormat) {
         this.token = token;
         this.bucket = bucket;
         this.org = org;
@@ -34,34 +32,19 @@ public class InfluxInitalizer {
 
 
         this.numberFormat = new DecimalFormat(decimalFormat);
-
         this.client = InfluxDBClientFactory.create(this.connection, this.token.toCharArray());
     }
 
     public void writeDataDouble(Double value, String host, String fieldName) {
-
-
         Point point = Point
                 .measurement(measurmentName)
                 .addTag(measurmentTag, host)
                 .addField(fieldName, Double.parseDouble(this.numberFormat.format(value)))
-                .addField(fieldName,value)
+                .addField(fieldName, value)
                 .time(Instant.now(), WritePrecision.NS);
 
         try (WriteApi writeApi = client.getWriteApi()) {
             writeApi.writePoint(bucket, org, point);
         }
     }
-
-
-    @Measurement(name = "Sentron")
-    public static class Sentron {
-        @Column(tag = true)
-        String host;
-        @Column
-        Double doubleData;
-        @Column(timestamp = true)
-        Instant time;
-    }
-
 }

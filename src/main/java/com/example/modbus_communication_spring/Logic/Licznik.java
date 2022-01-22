@@ -6,8 +6,6 @@ import de.re.easymodbus.modbusclient.ModbusClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +13,12 @@ import java.util.List;
 @Slf4j
 public class Licznik extends Thread {
 
-    private Thread t;
-
     private String IP;
     private int CzestotliwoscPomiarow;
     public ModbusClient modbusClient;
     private InfluxInitalizer influxInitalizer;
     private List<Register> registers_2;
     private List<Register> registers_4;
-    private static short GLOBAL_COUNTER = 0;
 
     public Licznik(String ip, int czestotliowsc, InfluxInitalizer influxInitalizer) {
         this.IP = ip;
@@ -92,7 +87,6 @@ public class Licznik extends Thread {
 
         if (modbusClient.isConnected()) {
             log.info("connected to Sentron");
-
             while (true) {
                 for (Register register : registers_2) {
                     this.insertIntoInflux(ModbusClient.ConvertRegistersToFloat(modbusClient.ReadHoldingRegisters(register.getValue(), 2), ModbusClient.RegisterOrder.HighLow)
@@ -102,9 +96,7 @@ public class Licznik extends Thread {
                     this.insertIntoInflux(ModbusClient.ConvertRegistersToDouble(modbusClient.ReadHoldingRegisters(register.getValue(), 4), ModbusClient.RegisterOrder.HighLow)
                             , register.name());
                 }
-                CheckMemoryUsage();
                 Thread.sleep(this.GetCzestotliwosc());
-                GLOBAL_COUNTER++;
             }
         } else {
             log.error("Connection lost");
@@ -112,12 +104,7 @@ public class Licznik extends Thread {
         }
     }
 
-    private void CheckMemoryUsage() {
-        MemoryUsage heapMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-        heapMemoryUsage.getUsed();
-        System.out.println("HeapMemoryUsage: " + heapMemoryUsage.getUsed());
-    }
-
+    @Override
     public void run() {
         try {
             this.ConnectToLicznik();
@@ -128,19 +115,17 @@ public class Licznik extends Thread {
                 Thread.sleep(2000);
                 run();
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                log.error("Interruption occured, cause: {}", ex);
             }
         } catch (ModbusException e) {
-            e.printStackTrace();
+            log.error("Modbus exception occured, cause: {}", e);
         }
 
     }
 
     public void insertIntoInflux(double value, String fieldName) {
         insertToInflux(value, influxInitalizer, "host", fieldName);
-     //   if(GLOBAL_COUNTER == 10) {
-            log.info("Added: " + value + " to field: " + fieldName);
-       // }
+        log.info("Added: " + value + " to field: " + fieldName);
     }
 
 

@@ -11,13 +11,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ModbusCommunicationSpringApplication implements CommandLineRunner {
 
-    @Value("${sentron.IP}")
-    private String IPADDRESS;
-
-    @Value("${sentron.saveFreqency}")
-    private int FREQUENCY;
     private static Licznik l1;
 
+
+    @Value("${sentron.IP}")
+    private String IPADDRESS;
+    @Value("${sentron.saveFreqency}")
+    private int FREQUENCY;
     @Value("${influx.token}")
     private String token;
     @Value("${influx.bucket}")
@@ -26,12 +26,10 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
     private String org;
     @Value("${influx.connection}")
     private String connection;
-
     @Value("${influx.measurmentName}")
     private String measurmentName;
     @Value("${influx.measurmentTag}")
     private String measurmentTag;
-
     @Value("${sentron.decimalFormat}")
     private String decimalFormat;
 
@@ -43,7 +41,7 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        influxInitalizer = new InfluxInitalizer(token, bucket, org, connection, measurmentName,measurmentTag,decimalFormat);
+        influxInitalizer = new InfluxInitalizer(token, bucket, org, connection, measurmentName, measurmentTag, decimalFormat);
 
         l1 = new Licznik(IPADDRESS,
                 FREQUENCY,
