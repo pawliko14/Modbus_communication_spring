@@ -2,17 +2,23 @@ package com.example.modbus_communication_spring;
 
 import com.example.modbus_communication_spring.InfluxDBConnector.InfluxInitalizer;
 import com.example.modbus_communication_spring.Logic.Licznik;
+import com.example.modbus_communication_spring.Logic.Register_2;
+import com.example.modbus_communication_spring.Logic.Register_4;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 
 @SpringBootApplication
 public class ModbusCommunicationSpringApplication implements CommandLineRunner {
 
-    private static Licznik l1;
+    private static final Logger log = getLogger(ModbusCommunicationSpringApplication.class);
 
+    private static Licznik l1;
 
     @Value("${sentron.IP}")
     private String IPADDRESS;
@@ -42,6 +48,12 @@ public class ModbusCommunicationSpringApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         influxInitalizer = new InfluxInitalizer(token, bucket, org, connection, measurmentName, measurmentTag, decimalFormat);
+
+        log.info("Monitored Parameters Register 2 :");
+        Register_2.getNames().forEach(System.out::println);
+        log.info("\nMonitored Parameters Register 4 :");
+        Register_4.getNames().forEach(System.out::println);
+        log.info("\n");
 
         l1 = new Licznik(IPADDRESS,
                 FREQUENCY,

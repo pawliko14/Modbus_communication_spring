@@ -1,6 +1,10 @@
 package com.example.modbus_communication_spring.Logic;
 
-public enum Register {
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public enum Register_2 {
     FREQUENCY(55),
     TOTAL_APPARENT_POWER(63),
     TOTAL_ACTIVE_POWER(65),
@@ -14,19 +18,20 @@ public enum Register {
     CURRENT_C(17),
     AVERAGE_CURRENT(61),
     DEMAND_ACTIVE_POWER_IMPORT(501),
-    DEMAND_ACTIVE_POWER_EXPORT(505),
-    ACTIVE_ENERGY_IMPORT_TARIFF_1(801),  // need 4 registers
-    ACTIVE_ENERGY_IMPORT_TARIFF_2(805),// need 4 registers
-    ACTIVE_ENERGY_EXPORT_TARIFF_1(809),// need 4 registers
-    ACTIVE_ENERGY_EXPORT_TARIFF_2(813);// need 4 registers
+    DEMAND_ACTIVE_POWER_EXPORT(505);
 
     private final int value;
 
-    Register(final int newValue) {
+    Register_2(final int newValue) {
         value = newValue;
     }
 
     public int getValue() {
         return value;
+    }
+
+    public static  List<String> getNames() {
+        return Arrays.stream(Register_2.values()).map(Enum::name)
+                .collect(Collectors.toList());
     }
 }

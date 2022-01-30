@@ -3,22 +3,21 @@ package com.example.modbus_communication_spring.Logic;
 import com.example.modbus_communication_spring.InfluxDBConnector.InfluxInitalizer;
 import de.re.easymodbus.exceptions.ModbusException;
 import de.re.easymodbus.modbusclient.ModbusClient;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-@Slf4j
 public class Licznik extends Thread {
+
+    private static final Logger log = getLogger(Licznik.class);
 
     private String IP;
     private int CzestotliwoscPomiarow;
     public ModbusClient modbusClient;
     private InfluxInitalizer influxInitalizer;
-    private List<Register> registers_2;
-    private List<Register> registers_4;
+
 
     public Licznik(String ip, int czestotliowsc, InfluxInitalizer influxInitalizer) {
         this.IP = ip;
@@ -27,36 +26,7 @@ public class Licznik extends Thread {
 
         modbusClient = new ModbusClient(this.GetIP(), 502);
 
-        this.registers_2 = new ArrayList<>();
-        this.registers_4 = new ArrayList<>();
 
-        fillRegister_2();
-        fillRegister_4();
-    }
-
-    private void fillRegister_4() {
-        registers_4.add(Register.ACTIVE_ENERGY_IMPORT_TARIFF_1);
-        registers_4.add(Register.ACTIVE_ENERGY_IMPORT_TARIFF_2);
-        registers_4.add(Register.ACTIVE_ENERGY_EXPORT_TARIFF_1);
-        registers_4.add(Register.ACTIVE_ENERGY_EXPORT_TARIFF_2);
-
-    }
-
-    private void fillRegister_2() {
-        registers_2.add(Register.FREQUENCY);
-        registers_2.add(Register.TOTAL_APPARENT_POWER);
-        registers_2.add(Register.TOTAL_ACTIVE_POWER);
-        registers_2.add(Register.TOTAL_REACTIVE_POWER);
-        registers_2.add(Register.WORKING_HOURS);
-        registers_2.add(Register.VOLTAGE_A_B);
-        registers_2.add(Register.VOLTAGE_B_C);
-        registers_2.add(Register.VOLTAGE_C_A);
-        registers_2.add(Register.CURRENT_A);
-        registers_2.add(Register.CURRENT_B);
-        registers_2.add(Register.CURRENT_C);
-        registers_2.add(Register.AVERAGE_CURRENT);
-        registers_2.add(Register.DEMAND_ACTIVE_POWER_IMPORT);
-        registers_2.add(Register.DEMAND_ACTIVE_POWER_EXPORT);
     }
 
     public String GetIP() {
@@ -82,19 +52,15 @@ public class Licznik extends Thread {
     }
 
 
-    public void StartGenerateDataSet() throws IllegalArgumentException, ModbusException, IOException, InterruptedException, SQLException {
-
-
+    public void StartGenerateDataSet() throws IOException, ModbusException, InterruptedException {
         if (modbusClient.isConnected()) {
             log.info("connected to Sentron");
             while (true) {
-                for (Register register : registers_2) {
-                    this.insertIntoInflux(ModbusClient.ConvertRegistersToFloat(modbusClient.ReadHoldingRegisters(register.getValue(), 2), ModbusClient.RegisterOrder.HighLow)
-                            , register.name());
+                for (Register_2 register2 : Register_2.values()) {
+                    this.insertIntoInflux(ModbusClient.ConvertRegistersToFloat(modbusClient.ReadHoldingRegisters(register2.getValue(), 2), ModbusClient.RegisterOrder.HighLow), register2.name());
                 }
-                for (Register register : registers_4) {
-                    this.insertIntoInflux(ModbusClient.ConvertRegistersToDouble(modbusClient.ReadHoldingRegisters(register.getValue(), 4), ModbusClient.RegisterOrder.HighLow)
-                            , register.name());
+                for (Register_4 register4 : Register_4.values()) {
+                    this.insertIntoInflux(ModbusClient.ConvertRegistersToDouble(modbusClient.ReadHoldingRegisters(register4.getValue(), 4), ModbusClient.RegisterOrder.HighLow), register4.name());
                 }
                 Thread.sleep(this.GetCzestotliwosc());
             }
@@ -109,7 +75,7 @@ public class Licznik extends Thread {
         try {
             this.ConnectToLicznik();
             this.StartGenerateDataSet();
-        } catch (SQLException | IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             log.error("no connection, cause:  \n" + e);
             try {
                 Thread.sleep(2000);
@@ -125,7 +91,6 @@ public class Licznik extends Thread {
 
     public void insertIntoInflux(double value, String fieldName) {
         insertToInflux(value, influxInitalizer, "host", fieldName);
-        log.info("Added: " + value + " to field: " + fieldName);
     }
 
 
